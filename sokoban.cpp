@@ -215,13 +215,15 @@ Field::Field() {
 
 	FILE* lvlfile;
 	if (!(lvlfile = fopen("lvl_file", "r"))) {
-		printf("Error opening: lvl_file");
+		//printf("Error opening: lvl_file");
+		std::cout << "Error opening: lvl_file" << std::endl;
 		return;
 	}
 	for (int i = 0; i < lvlfile_h-1; i++) {
 		result=fscanf(lvlfile, "%6[^\n]\n", temp[i]);
 		if (!result) {
-			printf("Error reading lvl_file");
+			//printf("Error reading lvl_file");
+			std::cout << "Error reading lvl_file" << std::endl;
 			return;
 		}
 	}
@@ -261,7 +263,9 @@ void Field::LoadLevel(const int level) {
 	lvl = level;
 	FILE* in;
 	if (!(in = fopen(lvlf[lvl], "r"))) {
-		fprintf(stderr, "Error opennig file!\n");
+		//fprintf(stderr, "Error opennig file!\n");
+		std::cout << "Error opennig file!" << std::endl;
+
 		return;
 	}
 	//printf("2");
@@ -271,7 +275,9 @@ void Field::LoadLevel(const int level) {
 	for (int y = 0; y < Field_h; y++) {
 		result = fscanf(in, "%40[^\n]\n", map[y]);
 		if (!result) {
-			printf("Error reading lvl_file");
+			//printf("Error reading lvl_file");
+			std::cout << "Error reading lvl_file!" << std::endl;
+
 			return;
 		}
 		for (int x = 0; x < Field_l-1; x++) {
@@ -308,9 +314,12 @@ void Field::Show() {
 	//Set the position
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 	for (int y = 0; y < Field_h; y++) {
-		printf("%s\n", map[y]);
+		//printf("%s\n", map[y]);
+		std::cout << map[y]<<std::endl;
 	}
-	printf("X-Exit         Level:%i         R-restart\n", lvl);
+	//printf("X-Exit         Level:%i         R-restart\n", lvl);
+	std::cout << "X-Exit          Level:"<< lvl <<"        R-restart" << std::endl;
+
 }
 unsigned int Field::ShowLvl() {
 	return lvl;
@@ -386,18 +395,22 @@ void WelcomeScreen::show(const unsigned int mode) {
 	for (int i = 0; i < Field_h; i++) {
 		result=fscanf(in, "%40[^\n]\n", screen_text[i]);
 		if (!result) {
-			printf("Error reading lvl_file");
+			std::cout << "Error reading lvl_file!" << std::endl;
+			//printf("Error reading lvl_file");
 			return;
 		}
 	}
 	for (int i = 0; i < Field_h; i++) {
-		printf("%s\n", screen_text[i]);
+		//printf("%s\n", screen_text[i]);
+		std::cout << screen_text[i] << std::endl;
 		if (mode == 1 && i == Field_h/2) {
 			////////****************************************
-			printf("*               Level:%i                *\n", field_m->ShowLvl());
+			std::cout << "*               Level:"<< field_m->ShowLvl()<<"                *" << std::endl;
+			//printf("*               Level:%i                *\n", field_m->ShowLvl());
 			i++;
 		}
 	}
-	printf("	    Press any key...");
+	//printf("	    Press any key...");
+	std::cout << "	     Press any key..." << std::endl;
 	result=_getch();
 }
