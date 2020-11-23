@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <conio.h>
 #include <Windows.h>
 #include <algorithm>
+#include <fstream>
+#include <array>
 
 
 #define Field_h 15
@@ -21,33 +24,19 @@ class Finish;
 class Character;
 
 
-
-
-class Position {
-private:
-	int p_x;
-	int p_y;
-public:
-	Position();
-	~Position();
-	bool ChangePos(const int ofs_x, const int ofs_y);
-	void InitPos(const int x, const int y);
-	int ShowPosX();
-	int ShowPosY();
-};
-
-
-
 class ObjectOnMap {
 protected:
-	Position object_pos;
-	char image;
+	int p_x;
+	int p_y;
 public:
 	ObjectOnMap();
 	ObjectOnMap(const int x, const int y);
 	~ObjectOnMap();
 	void StartPos(const int x, const int y);
-	Position ShowPos();
+	int ShowPosX();
+	int ShowPosY();
+	bool ChangePos(const int ofs_x, const int ofs_y);
+	void InitPos(const int x, const int y);
 };
 
 class Character :public ObjectOnMap {
@@ -56,7 +45,7 @@ public:
 	Character(const int x, const int y);
 	Character();
 	~Character();
-	void Move(const unsigned char mode, Box* box_array, Finish* finish_array, char(* map)[Field_l], const int box_amount);
+	void Move(const unsigned char mode, Box* box_array, Finish* finish_array, std::array<std::array<char, Field_l>, Field_h>& map, const int box_amount);
 	void MoveBox(const int pos_x, const int pos_y, Box* box_array, const unsigned box_amount,const unsigned char mode);
 
 };
@@ -80,14 +69,17 @@ public:
 class Field {
 private:
 	unsigned char points;
-	char lvlf[lvlfile_h][lvlfile_l];
-	char map[Field_h][Field_l];
+	std::array<std::array<char, lvlfile_l>, lvlfile_h> lvlf;
+	std::array<std::array<char, Field_l>, Field_h>map;
 	int box_amount;
 	unsigned int total_lvl;
 	Character character;
 	Box* box_array;
 	Finish* finish_array;
 	unsigned int lvl;
+	std::array<std::array<char, Field_l>, Field_h> screen_text;
+	std::array<std::array<char, scrLink_len>, scrLink_am> scrLink = { "face/launch_screen","face/scr_change","face/final_screen" };
+	void ShowScreen(const unsigned int i);
 public:
 	Field();
 	~Field();
@@ -95,15 +87,5 @@ public:
 	unsigned int ShowLvl();
 	unsigned char WinCheck();
 	void Show();
-	void Game(WelcomeScreen& welcome_screen);
-};
-class WelcomeScreen {
-private:
-	Field* field_m;
-	char screen_text[Field_h][Field_l];
-	char scrLink[scrLink_am][scrLink_len] = {"face/launch_screen","face/scr_change","face/final_screen"};
-public:
-	WelcomeScreen(Field* field);
-	~WelcomeScreen();
-	void show(const unsigned int i);
+	void Game();
 };

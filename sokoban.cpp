@@ -1,60 +1,43 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "sokoban.h"
 
-Position::Position() {
-	p_x = 0;
-	p_y = 0;
-}
-bool Position::ChangePos(const int ofs_x, const int ofs_y){
-	p_x+= ofs_x;
-	p_y+= ofs_y;
-	return true;
-}
-void Position::InitPos(const int x, const int y) {
-	p_x = x;
-	p_y = y;
-}
-Position::~Position() {
-
-}
-int Position::ShowPosX(){
-	return p_x;
-}
-int Position::ShowPosY(){
-	return p_y;
-}
-
 ObjectOnMap::ObjectOnMap() {
-	image = ' ';
-	object_pos.InitPos(0,0);
-
+	InitPos(0,0);
 }
 ObjectOnMap::~ObjectOnMap() {
 }
 ObjectOnMap::ObjectOnMap(const int x, const int y) {
-	image = ' ';
-	object_pos.InitPos(x,y);
-}
-Position ObjectOnMap::ShowPos() {
-	return object_pos;
+	InitPos(x,y);
 }
 
+int ObjectOnMap::ShowPosX() {
+	return p_x;
+}
+int ObjectOnMap::ShowPosY() {
+	return p_y;
+}
 Character::Character(const int x, const int y) {
-	image = 'H';
-	object_pos.InitPos(x, y);
+	InitPos(x, y);
 	
 }
 void ObjectOnMap::StartPos(const int x, const int y) {
-	object_pos.InitPos(x, y);
+	InitPos(x, y);
 }
 Character::Character() {
-	image = 'H';
-	object_pos.InitPos(0,0);
+	InitPos(0,0);
 }
-
-void Character::Move(const unsigned char mode, Box* box_array, Finish* finish_array, char(*map)[Field_l], const int box_amount){
-	int hy = object_pos.ShowPosY();
-	int hx = object_pos.ShowPosX();
+bool ObjectOnMap::ChangePos(const int ofs_x, const int ofs_y) {
+	p_x += ofs_x;
+	p_y += ofs_y;
+	return true;
+}
+void ObjectOnMap::InitPos(const int x, const int y) {
+	p_x = x;
+	p_y = y;
+}
+void Character::Move(const unsigned char mode, Box* box_array, Finish* finish_array, std::array<std::array<char, Field_l>, Field_h>& map , const int box_amount){
+	int hy = ShowPosY();
+	int hx = ShowPosX();
 	switch (mode) {
 	case 1://up
 		switch (map[hy - 1][hx]) {
@@ -74,7 +57,7 @@ void Character::Move(const unsigned char mode, Box* box_array, Finish* finish_ar
 			map[hy][hx] = ' ';
 			hy = hy - 1;
 		}
-		object_pos.ChangePos(0, -1);
+		ChangePos(0, -1);
 		break;
 	case 2://down
 		switch (map[hy + 1][hx]) {
@@ -93,7 +76,7 @@ void Character::Move(const unsigned char mode, Box* box_array, Finish* finish_ar
 			map[hy][hx] = ' ';
 			hy = hy + 1;
 		}
-		object_pos.ChangePos(0, 1);
+		ChangePos(0, 1);
 		break;
 	case 3://left
 		switch (map[hy][hx - 1]) {
@@ -111,7 +94,7 @@ void Character::Move(const unsigned char mode, Box* box_array, Finish* finish_ar
 			map[hy][hx] = ' ';
 			hx = hx - 1;
 		}
-		object_pos.ChangePos(-1, 0);
+		ChangePos(-1, 0);
 		break;
 	case 4:
 		switch (map[hy][hx + 1]) {
@@ -130,7 +113,7 @@ void Character::Move(const unsigned char mode, Box* box_array, Finish* finish_ar
 			map[hy][hx] = ' ';
 			hx = hx + 1;
 		}
-		object_pos.ChangePos(1, 0);
+		ChangePos(1, 0);
 		break;
 	}
 }
@@ -138,7 +121,6 @@ void Character::Move(const unsigned char mode, Box* box_array, Finish* finish_ar
 void Character::MoveBox(const int pos_x, const int pos_y, Box* box_array, const unsigned box_amount, unsigned char mode) {
 	unsigned int box_num = 0;
 	for (box_num = 0; box_num < box_amount; box_num++) {
-
 		if (!(box_array[box_num].CmpPos(pos_x, pos_y))) {
 			box_array[box_num].Move(mode);
 		}
@@ -149,16 +131,14 @@ void Character::MoveBox(const int pos_x, const int pos_y, Box* box_array, const 
 Character::~Character() {
 }
 Box::Box() {
-	image = 'B';
-	object_pos.InitPos(0, 0);
+	InitPos(0, 0);
 
 }
 Box::Box(const int x, const int y) {
-	image = 'B';
-	object_pos.InitPos(x, y);
+	InitPos(x, y);
 }
 bool Box::CmpPos(const int x, const int y){
-	if (x == object_pos.ShowPosX() && y == object_pos.ShowPosY()) {
+	if (x == ShowPosX() && y == ShowPosY()) {
 		return FALSE;
 	}
 	return TRUE;
@@ -168,16 +148,16 @@ bool Box::CmpPos(const int x, const int y){
 void Box::Move(const unsigned char mode) {
 	switch (mode) {
 	case 1://up
-		object_pos.ChangePos(0, -1);
+		ChangePos(0, -1);
 		break;
 	case 2://down
-		object_pos.ChangePos(0, 1);
+		ChangePos(0, 1);
 		break;
 	case 3://left
-		object_pos.ChangePos(-1, 0);
+		ChangePos(-1, 0);
 		break;
 	case 4://right
-		object_pos.ChangePos(1, 0);
+		ChangePos(1, 0);
 		break;
 	}
 }
@@ -185,13 +165,11 @@ Box::~Box() {
 
 }
 Finish::Finish() {
-	image = 'o';
-	object_pos.InitPos(0, 0);
+	InitPos(0, 0);
 
 }
 Finish::Finish(const int x, const int y) {
-	image = 'o';
-	object_pos.InitPos(x, y);
+	InitPos(x, y);
 
 }
 Finish::~Finish() {
@@ -208,24 +186,15 @@ Field::Field() {
 	int count;
 	lvlf[lvlfile_h-1][lvlfile_l-1] = { 0 };
 	map[Field_h-1][Field_l-1] = { 0 };
-	char temp[lvlfile_h][lvlfile_l - 4] = { 0 };
+	std::array<std::array<char, lvlfile_l - 4>, lvlfile_h> temp;
 	int result=0;
 	system("del lvl_file");
 	system("dir /B map >> lvl_file");
 
-	FILE* lvlfile;
-	if (!(lvlfile = fopen("lvl_file", "r"))) {
-		//printf("Error opening: lvl_file");
-		std::cout << "Error opening: lvl_file" << std::endl;
-		return;
-	}
+	std::ifstream lvlfile("lvl_file");
 	for (int i = 0; i < lvlfile_h-1; i++) {
-		result=fscanf(lvlfile, "%6[^\n]\n", temp[i]);
-		if (!result) {
-			//printf("Error reading lvl_file");
-			std::cout << "Error reading lvl_file" << std::endl;
-			return;
-		}
+		//result=fscanf(lvlfile, "%6[^\n]\n", temp[i]);
+		lvlfile.getline(temp[i].data(), lvlfile_l - 4, '\n');
 	}
 	for (int i = 0; i < lvlfile_h-1; i++) {
 		if (!(temp[i][0] == 'L')) {
@@ -246,8 +215,8 @@ Field::Field() {
 		lvlf[i][9] = temp[i][5];//0
 		lvlf[i][10] = temp[i][6];//0
 	}
-	fclose(lvlfile);
 	total_lvl = count;
+	lvlfile.close();
 }
 Field::~Field() {
 	delete[]box_array;
@@ -261,25 +230,10 @@ void Field::LoadLevel(const int level) {
 		box_amount = 0;
 	}
 	lvl = level;
-	FILE* in;
-	if (!(in = fopen(lvlf[lvl], "r"))) {
-		//fprintf(stderr, "Error opennig file!\n");
-		std::cout << "Error opennig file!" << std::endl;
-
-		return;
-	}
-	//printf("2");
-
+	std::ifstream fin(lvlf[lvl].data());
 	points = 0;
-
 	for (int y = 0; y < Field_h; y++) {
-		result = fscanf(in, "%40[^\n]\n", map[y]);
-		if (!result) {
-			//printf("Error reading lvl_file");
-			std::cout << "Error reading lvl_file!" << std::endl;
-
-			return;
-		}
+		fin.getline(map[y].data(), Field_l, '\n');
 		for (int x = 0; x < Field_l-1; x++) {
 			if (map[y][x]=='B') {
 				box_amount++;
@@ -290,7 +244,6 @@ void Field::LoadLevel(const int level) {
 	box_array = new Box [box_amount];
 	unsigned char Box_i=0;
 	unsigned char Fin_i = 0;
-//	printf("3");
 	for (int y = 0; y < Field_h; y++) {
 		for (int x = 0; x < Field_l-1; x++) {
 			switch (map[y][x]) {
@@ -306,7 +259,7 @@ void Field::LoadLevel(const int level) {
 			}
 		}
 	}
-	fclose(in);
+	fin.close();
 }
 void Field::Show() {
 	//Initialize the coordinates
@@ -314,10 +267,8 @@ void Field::Show() {
 	//Set the position
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 	for (int y = 0; y < Field_h; y++) {
-		//printf("%s\n", map[y]);
-		std::cout << map[y]<<std::endl;
+		std::cout << map[y].data()<<std::endl;
 	}
-	//printf("X-Exit         Level:%i         R-restart\n", lvl);
 	std::cout << "X-Exit          Level:"<< lvl <<"        R-restart" << std::endl;
 
 }
@@ -327,8 +278,8 @@ unsigned int Field::ShowLvl() {
 unsigned char Field:: WinCheck() {
 	int points=0;
 	for (int i = 0; i < box_amount; i++) {
-		int py = finish_array[i].ShowPos().ShowPosY();
-		int px = finish_array[i].ShowPos().ShowPosX();
+		int py = finish_array[i].ShowPosY();
+		int px = finish_array[i].ShowPosX();
 		switch (map[py][px]) {
 		case ' ':
 			map[py][px] = 'o';
@@ -340,10 +291,10 @@ unsigned char Field:: WinCheck() {
 	}
 	return points;
 }
-void Field::Game(WelcomeScreen& welcome_screen) {
-	welcome_screen.show(0);
+void Field::Game() {
+	ShowScreen(0);
 	//тут игра
-	welcome_screen.show(1);
+	ShowScreen(1);
 	char key=0;
 	while (key != 'x') {
 		Show();
@@ -371,46 +322,32 @@ void Field::Game(WelcomeScreen& welcome_screen) {
 			if (lvl < total_lvl) {
 				lvl++;
 				LoadLevel(lvl);
-				welcome_screen.show(1);
+				ShowScreen(1);
 				continue;
 			}
 		}
 		Show();
 	}
-	//Конец*/
 }
 
-WelcomeScreen::WelcomeScreen(Field* field) {
-	field_m = field;
-}
-WelcomeScreen::~WelcomeScreen() {
-}
-void WelcomeScreen::show(const unsigned int mode) {
+void Field::ShowScreen(const unsigned int mode) {
 	int result;
-	FILE* in = fopen(scrLink[mode], "r");
+	std::ifstream fin(scrLink[mode].data());
 	//Initialize the coordinates
 	COORD coord = { 0,0 };
 	//Set the position
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 	for (int i = 0; i < Field_h; i++) {
-		result=fscanf(in, "%40[^\n]\n", screen_text[i]);
-		if (!result) {
-			std::cout << "Error reading lvl_file!" << std::endl;
-			//printf("Error reading lvl_file");
-			return;
-		}
+		fin.getline(screen_text[i].data(), Field_l,'\n');
 	}
 	for (int i = 0; i < Field_h; i++) {
-		//printf("%s\n", screen_text[i]);
-		std::cout << screen_text[i] << std::endl;
-		if (mode == 1 && i == Field_h/2) {
-			////////****************************************
-			std::cout << "*               Level:"<< field_m->ShowLvl()<<"                *" << std::endl;
-			//printf("*               Level:%i                *\n", field_m->ShowLvl());
+		std::cout << screen_text[i].data() << std::endl;
+		if (mode == 1 && i == Field_h / 2) {
+			std::cout << "*               Level:" << lvl << "                *" << std::endl;
 			i++;
 		}
 	}
-	//printf("	    Press any key...");
+	fin.close();
 	std::cout << "	     Press any key..." << std::endl;
-	result=_getch();
+	result = _getch();
 }
