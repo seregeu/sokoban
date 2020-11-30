@@ -16,6 +16,12 @@
 #define lvlfile_h 99
 #define lvlfile_l 12
 
+#define UP 1
+#define DOWN 2
+#define LEFT 3
+#define RIGHT 4
+
+
 
 class WelcomeScreen;
 class Field;
@@ -37,6 +43,7 @@ public:
 	int ShowPosY();
 	bool ChangePos(const int ofs_x, const int ofs_y);
 	void InitPos(const int x, const int y);
+	void MoveInDir(const char mode);
 };
 
 class Character :public ObjectOnMap {
@@ -45,7 +52,7 @@ public:
 	Character(const int x, const int y);
 	Character();
 	~Character();
-	void Move(const unsigned char mode, Box* box_array, Finish* finish_array, std::array<std::array<char, Field_l>, Field_h>& map, const int box_amount);
+	void Move(const unsigned char mode, Field* field, Box* box_array, const int box_amount);
 	void MoveBox(const int pos_x, const int pos_y, Box* box_array, const unsigned box_amount,const unsigned char mode);
 
 };
@@ -84,8 +91,8 @@ public:
 	Field();
 	~Field();
 	void LoadLevel(const int lvl);
-	unsigned int ShowLvl();
 	unsigned char WinCheck();
 	void Show();
 	void Game();
+	bool SetC(const unsigned char dir);
 };
