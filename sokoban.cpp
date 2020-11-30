@@ -35,86 +35,26 @@ void ObjectOnMap::InitPos(const int x, const int y) {
 	p_x = x;
 	p_y = y;
 }
-void Character::Move(const unsigned char mode, Box* box_array, Finish* finish_array, std::array<std::array<char, Field_l>, Field_h>& map , const int box_amount){
-	int hy = ShowPosY();
-	int hx = ShowPosX();
+void ObjectOnMap::MoveInDir(const char mode) {
 	switch (mode) {
-	case 1://up
-		switch (map[hy - 1][hx]) {
-		case '#':
-			return;
-		case 'B':
-			if ((map[hy - 2][hx] == '#') || (map[hy - 2][hx] == 'B')) {
-				return;
-			}
-			else {
-				MoveBox(hy - 1, hx, box_array, box_amount, mode);
-				map[hy - 2][hx] = 'B';
-			}
-
-		default:
-			map[hy - 1][hx] = 'H';
-			map[hy][hx] = ' ';
-			hy = hy - 1;
-		}
+	case UP://up
 		ChangePos(0, -1);
 		break;
-	case 2://down
-		switch (map[hy + 1][hx]) {
-		case '#':
-			return;
-		case 'B':
-			if ((map[hy + 2][hx] == '#') || (map[hy + 2][hx] == 'B')) {
-				return;
-			}
-			else {
-				map[hy + 2][hx] = 'B';
-			}
-
-		default:
-			map[hy + 1][hx] = 'H';
-			map[hy][hx] = ' ';
-			hy = hy + 1;
-		}
+	case DOWN://down
 		ChangePos(0, 1);
 		break;
-	case 3://left
-		switch (map[hy][hx - 1]) {
-		case '#':
-			return;
-		case 'B':
-			if ((map[hy][hx - 2] == '#') || (map[hy][hx - 2] == 'B')) {
-				return;
-			}
-			else {
-				map[hy][hx - 2] = 'B';
-			}
-		default:
-			map[hy][hx - 1] = 'H';
-			map[hy][hx] = ' ';
-			hx = hx - 1;
-		}
+	case LEFT://left
 		ChangePos(-1, 0);
 		break;
-	case 4:
-		switch (map[hy][hx + 1]) {
-		case '#':
-			return;
-		case 'B':
-			if ((map[hy][hx + 2] == '#') || (map[hy][hx + 2] == 'B')) {
-				return;
-			}
-			else {
-				map[hy][hx + 2] = 'B';
-			}
-
-		default:
-			map[hy][hx + 1] = 'H';
-			map[hy][hx] = ' ';
-			hx = hx + 1;
-		}
+	case RIGHT://right
 		ChangePos(1, 0);
 		break;
+	}
+}
+void Character::Move(const unsigned char mode,Field* field, Box* box_array,const int box_amount){
+	if (field->SetC(mode) == true) {
+		MoveBox(ShowPosY()-1, ShowPosX(), box_array, box_amount, mode);
+		MoveInDir(mode);
 	}
 }
 
@@ -146,20 +86,7 @@ bool Box::CmpPos(const int x, const int y){
 
 
 void Box::Move(const unsigned char mode) {
-	switch (mode) {
-	case 1://up
-		ChangePos(0, -1);
-		break;
-	case 2://down
-		ChangePos(0, 1);
-		break;
-	case 3://left
-		ChangePos(-1, 0);
-		break;
-	case 4://right
-		ChangePos(1, 0);
-		break;
-	}
+	MoveInDir(mode);
 }
 Box::~Box() {
 
@@ -247,13 +174,13 @@ void Field::LoadLevel(const int level) {
 	for (int y = 0; y < Field_h; y++) {
 		for (int x = 0; x < Field_l-1; x++) {
 			switch (map[y][x]) {
-			case 'H'://ïåðñîíàæ
+			case 'H'://Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð¶
 				character.StartPos(x,y);
 			break;
-			case 'o'://ôèíèøè
+			case 'o'://Ñ„Ð¸Ð½Ð¸ÑˆÐ¸
 				finish_array[Fin_i++].StartPos(x, y);
 			break;
-			case 'B'://êîðîáêè
+			case 'B'://ÐºÐ¾Ñ€Ð¾Ð±ÐºÐ¸
 				box_array[Box_i++].StartPos(x, y);
 			break;
 			}
@@ -271,9 +198,6 @@ void Field::Show() {
 	}
 	std::cout << "X-Exit          Level:"<< lvl <<"        R-restart" << std::endl;
 
-}
-unsigned int Field::ShowLvl() {
-	return lvl;
 }
 unsigned char Field:: WinCheck() {
 	int points=0;
@@ -293,23 +217,23 @@ unsigned char Field:: WinCheck() {
 }
 void Field::Game() {
 	ShowScreen(0);
-	//òóò èãðà
+	//Ñ‚ÑƒÑ‚ Ð¸Ð³Ñ€Ð°
 	ShowScreen(1);
 	char key=0;
 	while (key != 'x') {
 		Show();
 		switch (_getch()) {
 		case 'w':
-			character.Move(1, box_array, finish_array,map,box_amount);
+			character.Move(UP,this, box_array,box_amount);
 			break;
 		case 's':
-			character.Move(2, box_array, finish_array, map, box_amount);
+			character.Move(DOWN, this,box_array, box_amount);
 			break;
 		case 'a':
-			character.Move(3, box_array, finish_array, map, box_amount);
+			character.Move(LEFT, this,box_array, box_amount);
 			break;
 		case 'd':
-			character.Move(4, box_array, finish_array, map, box_amount);
+			character.Move(RIGHT, this,box_array, box_amount);
 			break;
 		case 'r':
 			LoadLevel(lvl);
@@ -350,4 +274,83 @@ void Field::ShowScreen(const unsigned int mode) {
 	fin.close();
 	std::cout << "	     Press any key..." << std::endl;
 	result = _getch();
+}
+
+bool Field::SetC(const unsigned char dir) {
+	int hy = character.ShowPosY();
+	int hx = character.ShowPosX();
+	switch (dir) {
+	case UP://up
+		switch (map[hy - 1][hx]) {
+		case '#':
+			return false;
+		case 'B':
+			if ((map[hy - 2][hx] == '#') || (map[hy - 2][hx] == 'B')) {
+				return false;
+			}
+			else {
+				character.MoveBox(hy - 1, hx, box_array, box_amount, dir);
+				map[hy - 2][hx] = 'B';
+			}
+
+		default:
+			map[hy - 1][hx] = 'H';
+			map[hy][hx] = ' ';
+			hy = hy - 1;
+		}
+		break;
+	case DOWN://down
+		switch (map[hy + 1][hx]) {
+		case '#':
+			return false;
+		case 'B':
+			if ((map[hy + 2][hx] == '#') || (map[hy + 2][hx] == 'B')) {
+				return false;
+			}
+			else {
+				map[hy + 2][hx] = 'B';
+			}
+
+		default:
+			map[hy + 1][hx] = 'H';
+			map[hy][hx] = ' ';
+			hy = hy + 1;
+		}
+		break;
+	case LEFT://left
+		switch (map[hy][hx - 1]) {
+		case '#':
+			return false;
+		case 'B':
+			if ((map[hy][hx - 2] == '#') || (map[hy][hx - 2] == 'B')) {
+				return false;
+			}
+			else {
+				map[hy][hx - 2] = 'B';
+			}
+		default:
+			map[hy][hx - 1] = 'H';
+			map[hy][hx] = ' ';
+			hx = hx - 1;
+		}
+		break;
+	case RIGHT: //right
+		switch (map[hy][hx + 1]) {
+		case '#':
+			return false;
+		case 'B':
+			if ((map[hy][hx + 2] == '#') || (map[hy][hx + 2] == 'B')) {
+				return false;
+			}
+			else {
+				map[hy][hx + 2] = 'B';
+			}
+		default:
+			map[hy][hx + 1] = 'H';
+			map[hy][hx] = ' ';
+			hx = hx + 1;
+		}
+		break;
+	}
+	return true;
 }
